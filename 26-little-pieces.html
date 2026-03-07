@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>26 Little Pieces of Us</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: #1a0610;
+      background-image:
+        radial-gradient(ellipse at 30% 20%, rgba(90, 10, 40, 0.5) 0%, transparent 60%),
+        radial-gradient(ellipse at 75% 80%, rgba(60, 5, 25, 0.4) 0%, transparent 55%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      color: #e8d5c4;
+      padding: 2rem;
+      position: relative;
+    }
+
+    .back-link {
+      position: absolute;
+      top: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      color: #b8968a;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: color 0.3s ease;
+    }
+    .back-link:hover { color: #e8d5c4; }
+
+    .container {
+      text-align: center;
+      max-width: 720px;
+      width: 100%;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(2.8rem, 7vw, 5rem);
+      font-weight: 900;
+      font-style: italic;
+      color: #f0e0d0;
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      margin-bottom: 1.6rem;
+      text-shadow: 0 2px 30px rgba(200, 100, 80, 0.15);
+    }
+
+    .subtitle {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(1.25rem, 3vw, 1.75rem);
+      font-style: italic;
+      font-weight: 600;
+      color: #d4a898;
+      letter-spacing: 0.02em;
+      line-height: 1.5;
+    }
+
+    .heart {
+      display: inline-block;
+      color: #c9607a;
+      font-style: normal;
+    }
+  </style>
+</head>
+<body>
+  <a class="back-link" href="#">← back</a>
+  <div class="container">
+    <h1>26 Little Pieces of Us</h1>
+    <p class="subtitle">Pick a chit, Anikuuu — each one holds something just for you <span class="heart">♡</span></p>
+  </div>
+</body>
+</html>
