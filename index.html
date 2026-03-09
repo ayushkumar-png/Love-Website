@@ -445,7 +445,9 @@ body {
   position: fixed;
   inset: 0;
   z-index: 999;
+  pointer-events: none;
 }
+#modal[style*="block"] { pointer-events: auto; }
 
 #fx-canvas {
   position: absolute;
@@ -708,7 +710,7 @@ body {
   display: none;
   position: fixed;
   inset: 0;
-  z-index: 200;
+  z-index: 1001;
   overflow: hidden;
   flex-direction: column;
   align-items: center;
@@ -983,7 +985,7 @@ body {
   </div>
   <div class="chit-grid" id="chitGrid"></div>
   <div class="grid-photos-btn-wrap">
-    <button class="grid-photos-btn" id="openPhotosBtn">our little scrapbook ♡ →</button>
+    <button class="grid-photos-btn" id="openPhotosBtn" onclick="openPhotosPage()">our little scrapbook ♡ →</button>
   </div>
 </div>
 
@@ -1795,19 +1797,21 @@ document.addEventListener('keydown', e => {
 });
 
 // ─── PAGE TRANSITIONS ─────────────────────────────────────────
-document.getElementById('openPhotosBtn').addEventListener('click', () => {
+function openPhotosPage() {
   document.getElementById('grid-page').style.display = 'none';
   const ph = document.getElementById('photos-page');
   ph.style.display = 'flex';
   phCurrent = 0;
   buildPhotoStack();
-});
+}
 
 function closePhotosPage() {
   document.getElementById('photos-page').style.display = 'none';
   document.getElementById('grid-page').style.display = 'block';
 }
 
+// Wire both via JS and onclick attribute for safety
+document.getElementById('openPhotosBtn').addEventListener('click', openPhotosPage);
 document.getElementById('photosBackBtn').addEventListener('click', closePhotosPage);
 
 // ─── BOOT ────────────────────────────────────────────────────
