@@ -772,14 +772,15 @@ body {
 .ph-arrow {
   background: none;
   border: none;
-  color: rgba(240,224,208,0.22);
+  color: rgba(240,224,208,0.3);
   font-size: 3rem;
   line-height: 1;
   cursor: pointer;
   padding: 0 1.1rem;
   transition: color 0.25s;
   user-select: none;
-  z-index: 10;
+  position: relative;
+  z-index: 30;
   flex-shrink: 0;
 }
 .ph-arrow:hover { color: rgba(240,224,208,0.75); }
@@ -870,7 +871,7 @@ body {
   display: none;
   position: fixed;
   inset: 0;
-  z-index: 500;
+  z-index: 1100;
   align-items: center;
   justify-content: center;
 }
@@ -1649,16 +1650,11 @@ function buildPhotoStack() {
   const stack = document.getElementById('phStack');
   stack.innerHTML = '';
   phCards = [];
-  PHOTOS.forEach((p) => {
+  PHOTOS.forEach((p, i) => {
     const card = document.createElement('div');
     card.className = 'ph-card';
     card.innerHTML = `<img src="${p.src}" alt="${p.caption}" draggable="false"/>
                       <span class="ph-card-caption">${p.caption}</span>`;
-    card.addEventListener('click', () => {
-      // Only open lightbox if top card
-      const rel = ((PHOTOS.indexOf(p) - phCurrent) % phN + phN) % phN;
-      if (rel === 0) openLightbox(phCurrent);
-    });
     stack.appendChild(card);
     phCards.push(card);
   });
@@ -1698,47 +1694,55 @@ function phNavigate(dir) {
   document.getElementById('phHint').style.opacity = '0';
 }
 
-// Drag on stack
-let phDragStartX = null, phDragging = false;
+// ── Drag / swipe / tap ──
+let phDragStartX = null, phDragStartY = null, phDragging = false, phDragMoved = false;
+
+function phGetTop() { return phCards[phCurrent]; }
+
+function phOnStart(x, y) {
+  phDragStartX = x;
+  phDragStartY = y;
+  phDragging = true;
+  phDragMoved = false;
+}
+
+function phOnMove(x) {
+  if (!phDragging) return;
+  const dx = x - phDragStartX;
+  if (Math.abs(dx) > 6) phDragMoved = true;
+  const top = phGetTop();
+  if (top) {
+    top.style.transition = 'none';
+    top.style.transform = `translate(${dx * 0.45}px, ${-Math.abs(dx) * 0.04}px) rotate(${dx * 0.06}deg) scale(1.03)`;
+  }
+}
+
+function phOnEnd(x) {
+  if (!phDragging) return;
+  phDragging = false;
+  const dx = x - phDragStartX;
+  if (Math.abs(dx) > 50) {
+    phNavigate(dx < 0 ? 1 : -1);
+  } else if (!phDragMoved) {
+    // It was a tap — open lightbox
+    openLightbox(phCurrent);
+  } else {
+    phApplyLayout(true);
+  }
+  phDragStartX = null;
+}
+
 const phStackEl = document.getElementById('phStack');
 
-phStackEl.addEventListener('mousedown',  e => { phDragStartX = e.clientX; phDragging = true; });
-window.addEventListener('mousemove', e => {
-  if (!phDragging || phDragStartX === null) return;
-  const dx = e.clientX - phDragStartX;
-  const top = phCards[phCurrent];
-  if (top) {
-    top.style.transition = 'none';
-    top.style.transform  = `translate(${dx * 0.4}px, ${-Math.abs(dx)*0.04}px) rotate(${dx * 0.06}deg) scale(1.03)`;
-  }
-});
-window.addEventListener('mouseup', e => {
-  if (!phDragging) return;
-  phDragging = false;
-  const dx = e.clientX - phDragStartX;
-  if (Math.abs(dx) > 55) phNavigate(dx < 0 ? 1 : -1);
-  else phApplyLayout(true);
-  phDragStartX = null;
-});
+// Mouse
+phStackEl.addEventListener('mousedown',  e => phOnStart(e.clientX, e.clientY));
+window.addEventListener('mousemove', e => { if (phDragging) phOnMove(e.clientX); });
+window.addEventListener('mouseup',   e => { if (phDragging) phOnEnd(e.clientX); });
 
-phStackEl.addEventListener('touchstart', e => { phDragStartX = e.touches[0].clientX; phDragging = true; }, { passive: true });
-phStackEl.addEventListener('touchmove',  e => {
-  if (!phDragging) return;
-  const dx = e.touches[0].clientX - phDragStartX;
-  const top = phCards[phCurrent];
-  if (top) {
-    top.style.transition = 'none';
-    top.style.transform  = `translate(${dx * 0.4}px, ${-Math.abs(dx)*0.04}px) rotate(${dx * 0.06}deg) scale(1.03)`;
-  }
-}, { passive: true });
-phStackEl.addEventListener('touchend', e => {
-  if (!phDragging) return;
-  phDragging = false;
-  const dx = e.changedTouches[0].clientX - phDragStartX;
-  if (Math.abs(dx) > 55) phNavigate(dx < 0 ? 1 : -1);
-  else phApplyLayout(true);
-  phDragStartX = null;
-});
+// Touch
+phStackEl.addEventListener('touchstart', e => phOnStart(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+phStackEl.addEventListener('touchmove',  e => phOnMove(e.touches[0].clientX), { passive: true });
+phStackEl.addEventListener('touchend',   e => phOnEnd(e.changedTouches[0].clientX));
 
 document.getElementById('phPrev').addEventListener('click', () => phNavigate(-1));
 document.getElementById('phNext').addEventListener('click', () => phNavigate(1));
@@ -1769,7 +1773,7 @@ function renderLightbox(animate) {
     img.offsetHeight;
     img.style.animation = '';
   }
-  img.src = PHOTOS[lbCurrent].src.replace('w=900', 'w=1400');
+  img.src = PHOTOS[lbCurrent].src;
   document.getElementById('phLbCaption').textContent = PHOTOS[lbCurrent].caption;
 }
 
